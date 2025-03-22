@@ -1,33 +1,18 @@
 name: CI_action
 
-on:
-  push:
-      branches: [main]
-  pull_request:
-      branches: [main]
+on: [push]
 
 jobs:
-  build:
+  phpunit:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [12.x]
-
+    defaults:
+      run:
+        working-directory: ./app
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Install dependencies
-        run: npm test
-
-      - name: Run the tests
-        run: npm test
-
-      - name: Build
-        run: npm run build
+      - uses: actions/checkout@v1
+      - name: Setup Symfony
+        run: .env.dev .env
+      - name: Install Composer Dependencies
+        run: composer install --prefer-dist
+      - name: Run Tests
+        run: php bin/phpunit
